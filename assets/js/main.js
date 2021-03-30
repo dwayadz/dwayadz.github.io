@@ -1,124 +1,220 @@
 /**
-* Template Name: SoftLand - v2.2.1
-* Template URL: https://bootstrapmade.com/softland-bootstrap-app-landing-page-template/
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
-(function($) {
+ * Template Name: Dwaya - v4.1.0
+ * Template URL: https://bootstrapmade.com/Dwaya-free-bootstrap-landing-page-template/
+ * Author: BootstrapMade.com
+ * License: https://bootstrapmade.com/license/
+ */
+(function () {
   "use strict";
 
-  // Back to top button
-  $(window).scroll(function() {
-    if ($(this).scrollTop() > 100) {
-      $('.back-to-top').fadeIn('slow');
+  /**
+   * Easy selector helper function
+   */
+  const select = (el, all = false) => {
+    el = el.trim();
+    if (all) {
+      return [...document.querySelectorAll(el)];
     } else {
-      $('.back-to-top').fadeOut('slow');
+      return document.querySelector(el);
+    }
+  };
+
+  /**
+   * Easy event listener function
+   */
+  const on = (type, el, listener, all = false) => {
+    let selectEl = select(el, all);
+    if (selectEl) {
+      if (all) {
+        selectEl.forEach((e) => e.addEventListener(type, listener));
+      } else {
+        selectEl.addEventListener(type, listener);
+      }
+    }
+  };
+
+  /**
+   * Easy on scroll event listener
+   */
+  const onscroll = (el, listener) => {
+    el.addEventListener("scroll", listener);
+  };
+
+  /**
+   * Navbar links active state on scroll
+   */
+  let navbarlinks = select("#navbar .scrollto", true);
+  const navbarlinksActive = () => {
+    let position = window.scrollY + 200;
+    navbarlinks.forEach((navbarlink) => {
+      if (!navbarlink.hash) return;
+      let section = select(navbarlink.hash);
+      if (!section) return;
+      if (
+        position >= section.offsetTop &&
+        position <= section.offsetTop + section.offsetHeight
+      ) {
+        navbarlink.classList.add("active");
+      } else {
+        navbarlink.classList.remove("active");
+      }
+    });
+  };
+  window.addEventListener("load", navbarlinksActive);
+  onscroll(document, navbarlinksActive);
+
+  /**
+   * Scrolls to an element with header offset
+   */
+  const scrollto = (el) => {
+    let header = select("#header");
+    let offset = header.offsetHeight;
+
+    if (!header.classList.contains("header-scrolled")) {
+      offset -= 20;
+    }
+
+    let elementPos = select(el).offsetTop;
+    window.scrollTo({
+      top: elementPos - offset,
+      behavior: "smooth",
+    });
+  };
+
+  /**
+   * Toggle .header-scrolled class to #header when page is scrolled
+   */
+  let selectHeader = select("#header");
+  if (selectHeader) {
+    const headerScrolled = () => {
+      if (window.scrollY > 100) {
+        selectHeader.classList.add("header-scrolled");
+      } else {
+        selectHeader.classList.remove("header-scrolled");
+      }
+    };
+    window.addEventListener("load", headerScrolled);
+    onscroll(document, headerScrolled);
+  }
+
+  /**
+   * Back to top button
+   */
+  let backtotop = select(".back-to-top");
+  if (backtotop) {
+    const toggleBacktotop = () => {
+      if (window.scrollY > 100) {
+        backtotop.classList.add("active");
+      } else {
+        backtotop.classList.remove("active");
+      }
+    };
+    window.addEventListener("load", toggleBacktotop);
+    onscroll(document, toggleBacktotop);
+  }
+
+  /**
+   * Mobile nav toggle
+   */
+  on("click", ".mobile-nav-toggle", function (e) {
+    select("#navbar").classList.toggle("navbar-mobile");
+    this.classList.toggle("bi-list");
+    this.classList.toggle("bi-x");
+  });
+
+  /**
+   * Mobile nav dropdowns activate
+   */
+  on(
+    "click",
+    ".navbar .dropdown > a",
+    function (e) {
+      if (select("#navbar").classList.contains("navbar-mobile")) {
+        e.preventDefault();
+        this.nextElementSibling.classList.toggle("dropdown-active");
+      }
+    },
+    true
+  );
+
+  /**
+   * Scrool with ofset on links with a class name .scrollto
+   */
+  on(
+    "click",
+    ".scrollto",
+    function (e) {
+      if (select(this.hash)) {
+        e.preventDefault();
+
+        let navbar = select("#navbar");
+        if (navbar.classList.contains("navbar-mobile")) {
+          navbar.classList.remove("navbar-mobile");
+          let navbarToggle = select(".mobile-nav-toggle");
+          navbarToggle.classList.toggle("bi-list");
+          navbarToggle.classList.toggle("bi-x");
+        }
+        scrollto(this.hash);
+      }
+    },
+    true
+  );
+
+  /**
+   * Scroll with ofset on page load with hash links in the url
+   */
+  window.addEventListener("load", () => {
+    if (window.location.hash) {
+      if (select(window.location.hash)) {
+        scrollto(window.location.hash);
+      }
     }
   });
-  $('.back-to-top').click(function() {
-    $('html, body').animate({
-      scrollTop: 0
-    }, 1500, 'easeInOutExpo');
-    return false;
+
+  /**
+   * Preloader
+   */
+  let preloader = select("#preloader");
+  if (preloader) {
+    window.addEventListener("load", () => {
+      preloader.remove();
+    });
+  }
+
+  /**
+   * Initiate gallery lightbox
+   */
+  const galleryLightbox = GLightbox({
+    selector: ".gallery-lightbox",
   });
 
-  var siteMenuClone = function() {
-    $('.js-clone-nav').each(function() {
-      var $this = $(this);
-      $this.clone().attr('class', 'site-nav-wrap').appendTo('.site-mobile-menu-body');
-    });
-    setTimeout(function() {
-      var counter = 0;
-      $('.site-mobile-menu .has-children').each(function() {
-        var $this = $(this);
-        $this.prepend('<span class="arrow-collapse collapsed">');
-        $this.find('.arrow-collapse').attr({
-          'data-toggle': 'collapse',
-          'data-target': '#collapseItem' + counter,
-        });
-        $this.find('> ul').attr({
-          'class': 'collapse',
-          'id': 'collapseItem' + counter,
-        });
-        counter++;
-      });
-    }, 1000);
-    $('body').on('click', '.arrow-collapse', function(e) {
-      var $this = $(this);
-      if ($this.closest('li').find('.collapse').hasClass('show')) {
-        $this.removeClass('active');
-      } else {
-        $this.addClass('active');
-      }
-      e.preventDefault();
-    });
-    $(window).resize(function() {
-      var $this = $(this),
-        w = $this.width();
-      if (w > 768) {
-        if ($('body').hasClass('offcanvas-menu')) {
-          $('body').removeClass('offcanvas-menu');
-        }
-      }
-    })
-    $('body').on('click', '.js-menu-toggle', function(e) {
-      var $this = $(this);
-      e.preventDefault();
-      if ($('body').hasClass('offcanvas-menu')) {
-        $('body').removeClass('offcanvas-menu');
-        $('body').find('.js-menu-toggle').removeClass('active');
-      } else {
-        $('body').addClass('offcanvas-menu');
-        $('body').find('.js-menu-toggle').addClass('active');
-      }
-    })
-    // click outisde offcanvas
-    $(document).mouseup(function(e) {
-      var container = $(".site-mobile-menu");
-      if (!container.is(e.target) && container.has(e.target).length === 0) {
-        if ($('body').hasClass('offcanvas-menu')) {
-          $('body').removeClass('offcanvas-menu');
-          $('body').find('.js-menu-toggle').removeClass('active');
-        }
-      }
-    });
-  };
-  siteMenuClone();
-  var siteScroll = function() {
-    $(window).scroll(function() {
-      var st = $(this).scrollTop();
-      if (st > 100) {
-        $('.js-sticky-header').addClass('shrink');
-      } else {
-        $('.js-sticky-header').removeClass('shrink');
-      }
-    })
-  };
-  siteScroll();
-  var siteSticky = function() {
-    $(".js-sticky-header").sticky({
-      topSpacing: 0
-    });
-  };
-  siteSticky();
-  var siteOwlCarousel = function() {
-    $('.testimonial-carousel').owlCarousel({
-      center: true,
-      items: 1,
-      loop: true,
-      margin: 0,
-      autoplay: true,
-      smartSpeed: 1000,
-    });
-  };
-  siteOwlCarousel();
+  /**
+   * Testimonials slider
+   */
+  new Swiper(".testimonials-slider", {
+    speed: 600,
+    loop: true,
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+    slidesPerView: "auto",
+    pagination: {
+      el: ".swiper-pagination",
+      type: "bullets",
+      clickable: true,
+    },
+  });
 
-  $(window).on('load', function() {
+  /**
+   * Animation on scroll
+   */
+  window.addEventListener("load", () => {
     AOS.init({
-      easing: 'ease',
       duration: 1000,
-      once: true
+      easing: "ease-in-out",
+      once: true,
+      mirror: false,
     });
   });
-
-})(jQuery);
+})();
